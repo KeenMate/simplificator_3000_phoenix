@@ -2,7 +2,7 @@
 
 [![Hex pm](http://img.shields.io/hexpm/v/simplificator_3000.svg?style=flat)](https://hex.pm/packages/simplificator_3000_phoenix) [![Hexdocs](https://img.shields.io/badge/hex-docs-blue.svg?style=flat)](https://hexdocs.pm/simplificator_3000_phoenix/)
 
-Simplificator 3000 is a package containing various helpers for easier work in Elixir.
+Simplificator 3000 is a package containing various helpers for easier work in Phoenix.
 
 ## Installation
 
