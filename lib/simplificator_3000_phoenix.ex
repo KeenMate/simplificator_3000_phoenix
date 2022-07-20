@@ -29,8 +29,6 @@ defmodule Simplificator3000Phoenix do
           {title, nil} -> title
           {title, separator} -> title <> " " <> separator <> " " <> app_name
         end
-
-
       end
     end
   end

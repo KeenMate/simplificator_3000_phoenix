@@ -10,6 +10,7 @@ defmodule Simplificator3000Phoenix.MixProject do
       name: "Simplificator3000 Phoenix",
       description: description(),
       package: package(),
+      docs: docs(),
       deps: deps()
     ]
   end
@@ -25,7 +26,15 @@ defmodule Simplificator3000Phoenix.MixProject do
       # These are the default files included in the package
       files: ~w(lib .formatter.exs mix.exs README.md LICENSE),
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/KeenMate/simplificator_3000_phoenix"}
+      links: %{"GitHub" => "https://github.com/KeenMate/simplificator_3000_phoenix"},
+      source_url: "https://github.com/KeenMate/simplificator_3000_phoenix"
+    ]
+  end
+
+  defp docs() do
+    [
+      main: "readme",
+      extras: ["README.md"]
     ]
   end
 
@@ -39,6 +48,7 @@ defmodule Simplificator3000Phoenix.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:ex_doc, "~> 0.27", only: :dev, runtime: false},
       {:plug, "~> 1.13.6", optional: true},
       {:phoenix, "~> 1.6.10", optional: true}
     ]

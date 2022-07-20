@@ -16,8 +16,8 @@ defmodule Simplificator3000Phoenix.ChannelHelpers do
     }
   end
 
-  @spec success_reply(Phoenix.Socket.t() | Phoenix.Socket.socket_ref(), any(), Keyword.t()) :: {:noreply, Phoenix.Socket.t()}
-  | {:noreply, Phoenix.Socket.t(), Phoenix.Channel.timeout() | :hibernate}
+  @spec success_reply(Phoenix.Socket.t() | Phoenix.Channel.socket_ref(), any(), Keyword.t()) :: {:noreply, Phoenix.Socket.t()}
+  | {:noreply, Phoenix.Socket.t(), timeout | :hibernate}
   | {:reply, Phoenix.Channel.reply(), Phoenix.Socket.t()}
   | {:stop, reason :: term(), Phoenix.Socket.t()}
   | {:stop, reason :: term(), Phoenix.Channel.reply(), Phoenix.Socket.t()}
@@ -62,8 +62,8 @@ defmodule Simplificator3000Phoenix.ChannelHelpers do
     }
   end
 
-  @spec error_reply(Phoenix.Socket.t() | Phoenix.Socket.socket_ref(), Keyword.t()) :: {:noreply, Phoenix.Socket.t()}
-  | {:noreply, Phoenix.Socket.t(), Phoenix.Channel.timeout() | :hibernate}
+  @spec error_reply(Phoenix.Socket.t() | Phoenix.Channel.socket_ref(), Keyword.t()) :: {:noreply, Phoenix.Socket.t()}
+  | {:noreply, Phoenix.Socket.t(), timeout | :hibernate}
   | {:reply, Phoenix.Channel.reply(), Phoenix.Socket.t()}
   | {:stop, reason :: term(), Phoenix.Socket.t()}
   | {:stop, reason :: term(), Phoenix.Channel.reply(), Phoenix.Socket.t()}
