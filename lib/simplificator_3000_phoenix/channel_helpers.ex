@@ -1,27 +1,33 @@
 defmodule Simplificator3000Phoenix.ChannelHelpers do
   import Phoenix.Channel, only: [reply: 2, push: 3]
+  import Simplificator3000.MapHelpers, only: [camelize_map_keys: 1]
 
   def request_id(%{assigns: %{request_id: request_id}}) do
     request_id
   end
 
   def success(data \\ nil, opts \\ []) do
-    {
-      :ok,
+    response =
       %{
         data: data,
         request_id: Keyword.get(opts, :request_id),
         metadata: Keyword.get(opts, :metadata)
       }
+      |> camelize_map_keys()
+
+    {
+      :ok,
+      response
     }
   end
 
-  @spec success_reply(Phoenix.Socket.t() | Phoenix.Channel.socket_ref(), any(), Keyword.t()) :: {:noreply, Phoenix.Socket.t()}
-  | {:noreply, Phoenix.Socket.t(), timeout | :hibernate}
-  | {:reply, Phoenix.Channel.reply(), Phoenix.Socket.t()}
-  | {:stop, reason :: term(), Phoenix.Socket.t()}
-  | {:stop, reason :: term(), Phoenix.Channel.reply(), Phoenix.Socket.t()}
-  | :ok
+  @spec success_reply(Phoenix.Socket.t() | Phoenix.Channel.socket_ref(), any(), Keyword.t()) ::
+          {:noreply, Phoenix.Socket.t()}
+          | {:noreply, Phoenix.Socket.t(), timeout | :hibernate}
+          | {:reply, Phoenix.Channel.reply(), Phoenix.Socket.t()}
+          | {:stop, reason :: term(), Phoenix.Socket.t()}
+          | {:stop, reason :: term(), Phoenix.Channel.reply(), Phoenix.Socket.t()}
+          | :ok
   def success_reply(socket, data \\ nil, opts \\ [])
 
   def success_reply(%Phoenix.Socket{} = socket, data, opts) do
@@ -35,21 +41,24 @@ defmodule Simplificator3000Phoenix.ChannelHelpers do
   end
 
   def success_push(socket, event, data \\ nil, opts \\ []) do
-    push(
-      socket,
-      event,
+    response =
       %{
         status: "ok",
         data: data,
         request_id: Keyword.get(opts, :request_id),
         metadata: Keyword.get(opts, :metadata)
       }
+      |> camelize_map_keys()
+
+    push(
+      socket,
+      event,
+      response
     )
   end
 
   def error(opts \\ []) do
-    {
-      :error,
+    response =
       %{
         error: %{
           code: Keyword.get(opts, :reason),
@@ -59,15 +68,21 @@ defmodule Simplificator3000Phoenix.ChannelHelpers do
         request_id: Keyword.get(opts, :request_id),
         metadata: Keyword.get(opts, :metadata)
       }
+      |> camelize_map_keys()
+
+    {
+      :error,
+      response
     }
   end
 
-  @spec error_reply(Phoenix.Socket.t() | Phoenix.Channel.socket_ref(), Keyword.t()) :: {:noreply, Phoenix.Socket.t()}
-  | {:noreply, Phoenix.Socket.t(), timeout | :hibernate}
-  | {:reply, Phoenix.Channel.reply(), Phoenix.Socket.t()}
-  | {:stop, reason :: term(), Phoenix.Socket.t()}
-  | {:stop, reason :: term(), Phoenix.Channel.reply(), Phoenix.Socket.t()}
-  | :ok
+  @spec error_reply(Phoenix.Socket.t() | Phoenix.Channel.socket_ref(), Keyword.t()) ::
+          {:noreply, Phoenix.Socket.t()}
+          | {:noreply, Phoenix.Socket.t(), timeout | :hibernate}
+          | {:reply, Phoenix.Channel.reply(), Phoenix.Socket.t()}
+          | {:stop, reason :: term(), Phoenix.Socket.t()}
+          | {:stop, reason :: term(), Phoenix.Channel.reply(), Phoenix.Socket.t()}
+          | :ok
   def error_reply(socket, opts \\ [])
 
   def error_reply(%Phoenix.Socket{} = socket, opts) do
@@ -84,9 +99,7 @@ defmodule Simplificator3000Phoenix.ChannelHelpers do
   end
 
   def error_push(socket, event, opts) do
-    push(
-      socket,
-      event,
+    response =
       %{
         status: "error",
         error: %{
@@ -97,6 +110,12 @@ defmodule Simplificator3000Phoenix.ChannelHelpers do
         request_id: Keyword.get(opts, :request_id),
         metadata: Keyword.get(opts, :metadata)
       }
+      |> camelize_map_keys()
+
+    push(
+      socket,
+      event,
+      response
     )
   end
 
