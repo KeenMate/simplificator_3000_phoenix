@@ -1,4 +1,4 @@
-defmodule Simplificator3000Phoenix.ApiHandler.PermissionsCheck do
+defmodule Simplificator3000Phoenix.PermissionsCheck do
   alias Simplificator3000Phoenix.ApiHandler.Config
 
   @permissions :permissions

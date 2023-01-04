@@ -19,7 +19,7 @@ defmodule Simplificator3000Phoenix.ApiHandler do
     quote do
       def unquote(method_name)(conn, params) do
         if(
-          Simplificator3000Phoenix.ApiHandler.PermissionsCheck.check_permissions(
+          Simplificator3000Phoenix.PermissionsCheck.check_permissions(
             conn,
             unquote(options)
           )
