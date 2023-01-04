@@ -1,6 +1,6 @@
 defmodule Simplificator3000Phoenix.ChannelHelpers do
   import Phoenix.Channel, only: [reply: 2, push: 3]
-  import Simplificator3000.MapHelpers, only: [camelize_map_keys: 1]
+  import Simplificator3000.MapHelpers, only: [camel_cased_map_keys: 1]
 
   def request_id(%{assigns: %{request_id: request_id}}) do
     request_id
@@ -13,7 +13,7 @@ defmodule Simplificator3000Phoenix.ChannelHelpers do
       request_id: Keyword.get(opts, :request_id),
       metadata: Keyword.get(opts, :metadata)
     }
-    |> camelize_map_keys()
+    |> camel_cased_map_keys()
   end
 
   @spec success_reply(Phoenix.Socket.t() | Phoenix.Channel.socket_ref(), any(), Keyword.t()) ::
@@ -57,7 +57,7 @@ defmodule Simplificator3000Phoenix.ChannelHelpers do
       request_id: Keyword.get(opts, :request_id),
       metadata: Keyword.get(opts, :metadata)
     }
-    |> camelize_map_keys()
+    |> camel_cased_map_keys()
   end
 
   @spec error_reply(Phoenix.Socket.t() | Phoenix.Channel.socket_ref(), Keyword.t()) ::
