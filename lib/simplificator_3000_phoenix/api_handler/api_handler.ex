@@ -1,5 +1,5 @@
 defmodule Simplificator3000Phoenix.ApiHandler do
-  alias Simplificator3000Phoenix.ApiHandler.Config
+  alias Simplificator3000Phoenix.ApiHandler.ApiHandlerConfig, as: Config
   @fallback_options_key :fallback_options
 
   defmacro api_handler(method_name, params_template, options \\ []) do

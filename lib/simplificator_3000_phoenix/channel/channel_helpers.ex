@@ -1,6 +1,23 @@
-defmodule Simplificator3000Phoenix.ChannelHelpers do
+defmodule Simplificator3000Phoenix.Channel.ChannelHelpers do
+  alias Simplificator3000.RandomHelpers
+
+  import Phoenix.Socket, only: [assign: 3]
   import Phoenix.Channel, only: [reply: 2, push: 3]
   import Simplificator3000.MapHelpers, only: [camel_cased_map_keys: 1]
+
+  def put_request_id(socket) do
+    request_id = RandomHelpers.new_guid()
+    #    Logger.debug("Generated new reqid for channel call: #{request_id}")
+    socket
+    |> assign(:request_id, request_id)
+    |> case do
+      %{assigns: %{ctx: ctx}} = socket ->
+        assign(socket, :ctx, Map.put(ctx, :request_id, request_id))
+
+      val ->
+        val
+    end
+  end
 
   def request_id(%{assigns: %{request_id: request_id}}) do
     request_id

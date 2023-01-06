@@ -1,9 +1,10 @@
-defmodule Simplificator3000Phoenix.ApiHandler.Config do
+defmodule Simplificator3000Phoenix.ApiHandler.ApiHandlerConfig do
   alias Simplificator3000Phoenix.ApiHandler
 
   @config_name :simplificator_3000_phoenix
+  @config_section_name :api_handler
   def get_from_config(key) do
-    Application.get_env(@config_name, key)
+    Application.get_env(@config_name, @config_section_name)[key]
   end
 
   @handler_method_postfix :handler_postfix
@@ -31,7 +32,6 @@ defmodule Simplificator3000Phoenix.ApiHandler.Config do
   end
 
   @fallback_handler_key :fallback_handler
-
   def get_fallback_handler(options) do
     with nil <- Keyword.get(options, @fallback_handler_key, nil),
          nil <- get_from_config(@fallback_handler_key) do
@@ -40,7 +40,6 @@ defmodule Simplificator3000Phoenix.ApiHandler.Config do
   end
 
   @fallback_enabled_key :fallback_enabled
-
   def get_fallback_enabled(options) do
     with nil <- Keyword.get(options, @fallback_enabled_key, nil),
          nil <- get_from_config(@fallback_enabled_key) do
@@ -49,7 +48,6 @@ defmodule Simplificator3000Phoenix.ApiHandler.Config do
   end
 
   @permission_handler :permission_handler
-
   def get_permission_handler(options) do
     with nil <- Keyword.get(options, @permission_handler, nil),
          nil <- get_from_config(@permission_handler) do
