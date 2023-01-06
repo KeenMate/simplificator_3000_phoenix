@@ -26,7 +26,7 @@ defmodule Simplificator3000Phoenix.Channel do
       def authorized?(topic, payload, socket) do
         Simplificator3000Phoenix.PermissionsCheck.check_permissions(
           socket,
-          unquote(options)
+          unquote(Macro.escape(options))
         )
       end
 
@@ -38,7 +38,7 @@ defmodule Simplificator3000Phoenix.Channel do
     end
   end
 
-  defmacro message(event, payload_template, options \\ []) do
+  defmacro message(event, payload_template \\ %{}, options \\ []) do
     invalid_params_handler = Config.get_invalid_params_handler(options)
     unauthorize_handler = Config.get_unauthorized_handler(options)
 
@@ -49,11 +49,12 @@ defmodule Simplificator3000Phoenix.Channel do
 
         if Simplificator3000Phoenix.PermissionsCheck.check_permissions(
              socket,
-             unquote(options)
+             unquote(Macro.escape(options))
            ) do
           # parse and validate params
           with payload <- Simplificator3000.MapHelpers.snake_cased_map_keys(raw_payload),
-               {:ok, parsed_payload} <- Tarams.cast(payload, unquote(payload_template)) do
+               {:ok, parsed_payload} <-
+                 Tarams.cast(payload, unquote(Macro.escape(payload_template))) do
             # * call handler function
             apply(__MODULE__, unquote(event), [socket, parsed_payload])
           else
@@ -62,12 +63,25 @@ defmodule Simplificator3000Phoenix.Channel do
               unquote(invalid_params_handler).(socket, errors)
           end
         else
-          # Logger.warn(
-          #   "User: '#{socket.assigns.user.username}' attempted to call '#{unquote(event)}' or channel '#{to_string(__MODULE__)}'"
-          # )
-
           # handle unauthorized
           unquote(unauthorize_handler).(socket)
+        end
+      end
+    end
+  end
+
+  defmacro sub(name, options \\ []) do
+    handler_name = Keyword.get(options, :handler, name)
+
+    quote do
+      @impl true
+      def handle_info({unquote(name), data}, socket) do
+        case apply(__MODULE__, unquote(handler_name), [socket, data]) do
+          {:stop, _, _} = val ->
+            val
+
+          _ ->
+            {:noreply, socket}
         end
       end
     end
