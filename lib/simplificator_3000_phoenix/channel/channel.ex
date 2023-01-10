@@ -43,6 +43,12 @@ defmodule Simplificator3000Phoenix.Channel do
     unauthorize_handler = Config.get_unauthorized_handler(options)
 
     #
+    escaped_template =
+      case payload_template do
+        %{} -> Macro.escape(payload_template)
+        _ -> payload_template
+      end
+
     quote do
       def handle_message(unquote(Atom.to_string(event)), raw_payload, socket) do
         # check permissions
@@ -54,7 +60,7 @@ defmodule Simplificator3000Phoenix.Channel do
           # parse and validate params
           with payload <- Simplificator3000.MapHelpers.snake_cased_map_keys(raw_payload),
                {:ok, parsed_payload} <-
-                 Tarams.cast(payload, unquote(Macro.escape(payload_template))) do
+                 Tarams.cast(payload, unquote(escaped_template)) do
             # * call handler function
             apply(__MODULE__, unquote(event), [socket, parsed_payload])
           else
@@ -79,6 +85,9 @@ defmodule Simplificator3000Phoenix.Channel do
         case apply(__MODULE__, unquote(handler_name), [socket, data]) do
           {:stop, _, _} = val ->
             val
+
+          {:noreply, socket} ->
+            {:noreply, socket}
 
           _ ->
             {:noreply, socket}
