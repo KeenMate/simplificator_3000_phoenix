@@ -4,11 +4,11 @@ defmodule Simplificator3000Phoenix.Config do
     Application.get_env(@config_name, key)
   end
 
-  @permission_handler :permission_handler
+  @auth_handler :auth_handler
 
-  def get_permission_handler(options) do
-    with nil <- Keyword.get(options, @permission_handler, nil),
-         nil <- get_from_config(@permission_handler) do
+  def get_auth_handler(options) do
+    with nil <- Keyword.get(options, @auth_handler, nil),
+         nil <- get_from_config(@auth_handler) do
       raise "permission handler not defined"
     end
   end

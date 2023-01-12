@@ -11,14 +11,14 @@ defmodule Simplificator3000Phoenix.PermissionsCheck do
     required_groups = Keyword.get(options, @groups)
 
     if(required_permissions || required_roles || required_groups) do
-      permission_handler = Config.get_permission_handler(options)
+      auth_handler = Config.get_auth_handler(options)
       auth_operator = Config.get_auth_operator(options)
 
       check_results =
         [
-          check(conn_or_socket, permission_handler, @permissions, required_permissions),
-          check(conn_or_socket, permission_handler, @roles, required_roles),
-          check(conn_or_socket, permission_handler, @groups, required_groups)
+          check(conn_or_socket, auth_handler, @permissions, required_permissions),
+          check(conn_or_socket, auth_handler, @roles, required_roles),
+          check(conn_or_socket, auth_handler, @groups, required_groups)
         ]
         |> Enum.filter(&(&1 != :no_check))
 

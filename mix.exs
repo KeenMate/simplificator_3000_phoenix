@@ -4,7 +4,7 @@ defmodule Simplificator3000Phoenix.MixProject do
   def project do
     [
       app: :simplificator_3000_phoenix,
-      version: "0.3.0",
+      version: "1.0.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       name: "Simplificator3000 Phoenix",
@@ -51,6 +51,7 @@ defmodule Simplificator3000Phoenix.MixProject do
       {:ex_doc, "~> 0.27", only: :dev, runtime: false},
       {:plug, "~> 1.13.6", optional: true},
       {:phoenix, ">= 1.6.10", optional: true},
+
       {:simplificator_3000, "~> 0.4.0"},
       {:tarams, "~> 1.0.0"}
     ]

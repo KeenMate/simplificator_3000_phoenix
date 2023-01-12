@@ -131,7 +131,7 @@ config :simplificator_3000_phoenix,
 | invalid_params_handler | func(conn,params_error) -> (conn)   |
 | fallback_handler       | func(conn,error,options) -> (conn)  |
 | fallback_enabled       | boolean                             |
-| permission_handler     | func(conn,required) -> boolean      |
+| auth_handler     | func(conn,required) -> boolean      |
 | auth_operator          | :or or :and                         |
 | unauthorized_handler   | func(conn) -> conn                  |
 
@@ -241,12 +241,12 @@ config :simplificator_3000_phoenix,
 
 Example configuration
 
-Only thing you have to configure is permission_handler (only if you use permissions, groups or roles)
+Only thing you have to configure is auth_handler (only if you use permissions, groups or roles)
 
 ```elixir
 config :simplificator_3000_phoenix,
   auth_operator: 
-  permission_handler:
+  auth_handler:
   api_handler: %{
     #api handler configuration
   },

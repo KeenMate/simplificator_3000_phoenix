@@ -47,10 +47,10 @@ defmodule Simplificator3000Phoenix.ApiHandler.ApiHandlerConfig do
     end
   end
 
-  @permission_handler :permission_handler
-  def get_permission_handler(options) do
-    with nil <- Keyword.get(options, @permission_handler, nil),
-         nil <- get_from_config(@permission_handler) do
+  @auth_handler :auth_handler
+  def get_auth_handler(options) do
+    with nil <- Keyword.get(options, @auth_handler, nil),
+         nil <- get_from_config(@auth_handler) do
       raise "permission handler not defined"
     end
   end
