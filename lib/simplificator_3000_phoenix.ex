@@ -5,7 +5,7 @@ defmodule Simplificator3000Phoenix do
     end
   end
 
-  def view do
+  def html do
     quote do
       @before_compile {unquote(__MODULE__), :view_before_compile}
     end
@@ -13,23 +13,28 @@ defmodule Simplificator3000Phoenix do
 
   def layout do
     quote do
-      def title(conn, assigns) do
-        {:ok, application} = :application.get_application()
-        app_name = Application.get_env(application, :page_title)
-        title_separator = Application.get_env(application, :title_separator)
+      import Simplificator3000Phoenix, only: [title: 1]
+    end
+  end
 
-        title =
-          case view_module(conn).page_title(view_template(conn), assigns) do
-            title when is_binary(title) -> title
-            _ -> Map.get(assigns, :title)
-          end
+  def title(conn) do
+    {:ok, application} = :application.get_application()
+    app_name = Application.get_env(application, :page_title)
+    title_separator = Application.get_env(application, :title_separator)
 
-        case {title, title_separator} do
-          {nil, _} -> app_name
-          {title, nil} -> title
-          {title, separator} -> title <> " " <> separator <> " " <> app_name
-        end
+    title =
+      case Phoenix.Controller.view_module(conn).page_title(
+             Phoenix.Controller.view_template(conn),
+             conn.assigns
+           ) do
+        title when is_binary(title) -> title
+        _ -> Map.get(conn.assigns, :title)
       end
+
+    case {title, title_separator} do
+      {nil, _} -> app_name
+      {title, nil} -> title
+      {title, separator} -> title <> " " <> separator <> " " <> app_name
     end
   end
 
