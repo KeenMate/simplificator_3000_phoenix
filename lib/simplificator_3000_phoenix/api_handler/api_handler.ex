@@ -24,7 +24,9 @@ defmodule Simplificator3000Phoenix.ApiHandler do
             unquote(options)
           )
         ) do
-          with {:ok, better_params} <- Tarams.cast(params, unquote(params_template)) do
+          snake_cased_params = Simplificator3000.MapHelpers.snake_cased_map_keys(params)
+
+          with {:ok, better_params} <- Tarams.cast(snake_cased_params, unquote(params_template)) do
             unquote(call_handler_method(handler_method_name, options))
           else
             {:error, errors} ->
