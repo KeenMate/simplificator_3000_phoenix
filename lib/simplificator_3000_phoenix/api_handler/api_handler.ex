@@ -31,7 +31,7 @@ defmodule Simplificator3000Phoenix.ApiHandler do
               unquote(invalid_params_handler).(conn, errors)
           end
         else
-          unquote(unauthorized_handler).(conn)
+          unquote(unauthorized_handler).(conn, unquote(options))
         end
       end
     end
