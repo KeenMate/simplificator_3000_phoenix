@@ -110,7 +110,6 @@ defmodule Simplificator3000Phoenix.Channel do
         end
       end
     end
-    |> IO.inspect(label: "defmsg result")
   end
 
   defmacro sub(name, options \\ []) do
