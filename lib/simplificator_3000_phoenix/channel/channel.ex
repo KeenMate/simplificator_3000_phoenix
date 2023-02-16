@@ -48,7 +48,7 @@ defmodule Simplificator3000Phoenix.Channel do
     Module.put_attribute(__CALLER__.module, :payload, payload)
   end
 
-  defmacro defmsg(event, payload_template, opts) do
+  defmacro message(event, payload_template, opts) do
     handler_name = String.to_atom(Atom.to_string(event) <> "_handler")
 
     quote do
@@ -72,7 +72,7 @@ defmodule Simplificator3000Phoenix.Channel do
     end
   end
 
-  defmacro defmsg({event, _, params}, [do: block]) do
+  defmacro message({event, _, params}, [do: block]) do
     payload_template =
       __CALLER__.module
       |> Module.get_attribute(:payload, %{})
