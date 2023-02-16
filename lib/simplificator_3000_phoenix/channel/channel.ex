@@ -36,7 +36,7 @@ defmodule Simplificator3000Phoenix.Channel do
         )
       end
 
-      def unauthorized(socket) do
+      def unauthorized?(socket) do
         unquote(unauthorize_handler).(socket)
       end
 
