@@ -110,7 +110,7 @@ defmodule Simplificator3000Phoenix.Channel do
   end
 
   defmacro message({event, _, params}, [do: block]) do
-    payload_template = Module.get_attribute(__CALLER__.module, :payload, %{})
+    payload_template = Module.get_attribute(__CALLER__.module, :payload) || quote do: %{}
     Module.delete_attribute(__CALLER__.module, :payload)
 
     [payload, socket, opts] =
