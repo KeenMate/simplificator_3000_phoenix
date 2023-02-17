@@ -93,7 +93,7 @@ defmodule Simplificator3000Phoenix.Channel do
         if Simplificator3000Phoenix.PermissionsCheck.check_permissions(socket, unquote(Macro.escape(opts))) do
           # Parse and validate params
           with payload <- Simplificator3000.MapHelpers.snake_cased_map_keys(payload),
-               {:ok, parsed_payload} <- Tarams.cast(payload, unquote(Macro.escape(payload_template))) do
+               {:ok, parsed_payload} <- Tarams.cast(payload, unquote(payload_template)) do
             # Call user code
             apply(__MODULE__, unquote(event), [parsed_payload, socket])
           else
@@ -110,10 +110,7 @@ defmodule Simplificator3000Phoenix.Channel do
   end
 
   defmacro message({event, _, params}, [do: block]) do
-    payload_template =
-      __CALLER__.module
-      |> Module.get_attribute(:payload, %{})
-      |> Macro.escape()
+    payload_template = Module.get_attribute(__CALLER__.module, :payload, %{})
     Module.delete_attribute(__CALLER__.module, :payload)
 
     [payload, socket, opts] =
