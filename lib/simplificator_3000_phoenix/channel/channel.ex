@@ -44,10 +44,47 @@ defmodule Simplificator3000Phoenix.Channel do
     end
   end
 
+  @doc """
+  Defines a payload schema for first following message handler (that consumes the schema and prevents further use of this schema).
+  Payload schema is a map with keys and types.
+  For schema documentation see [`Tarams`](https://hexdocs.pm/tarams/readme.html) library.
+  """
   defmacro payload(payload) do
     Module.put_attribute(__CALLER__.module, :payload, payload)
   end
 
+  @doc """
+  Defines a message handler.
+  Permissions can be passed via `opts` param to validate request's rights.
+  Event handler receives parsed and validated payload.
+
+  ## Options
+      - `:unauthorized_handler` - function to be called when user is not authorized to perform the action.
+      - `:invalid_params_handler` - function to be called when params are invalid.
+      - `:permissions` - list of permissions to check.
+
+  ## Examples
+      1. As a function definition:
+      ```
+      message event_name(payload, socket) do
+        # Code
+      end
+      ```
+      2. As a function declaration:
+      ```
+      message(
+        :event_name,
+        payload_template,
+        opts
+      )
+
+      def event_name(payload, socket) do
+        # Code
+      end
+      ```
+
+      This way you can create event handler by yourself thus allowing you to make use of mupltiple function pattern matching.
+  """
   defmacro message(event, payload_template, opts) do
     handler_name = String.to_atom(Atom.to_string(event) <> "_handler")
 
@@ -56,7 +93,7 @@ defmodule Simplificator3000Phoenix.Channel do
         if Simplificator3000Phoenix.PermissionsCheck.check_permissions(socket, unquote(Macro.escape(opts))) do
           # Parse and validate params
           with payload <- Simplificator3000.MapHelpers.snake_cased_map_keys(payload),
-               {:ok, parsed_payload} <- Tarams.cast(payload, unquote(payload_template)) do
+               {:ok, parsed_payload} <- Tarams.cast(payload, unquote(Macro.escape(payload_template))) do
             # Call user code
             apply(__MODULE__, unquote(event), [parsed_payload, socket])
           else
@@ -116,7 +153,6 @@ defmodule Simplificator3000Phoenix.Channel do
     handler_name = Keyword.get(options, :handler, name)
 
     quote do
-      @impl true
       def handle_info({unquote(name), data}, socket) do
         case apply(__MODULE__, unquote(handler_name), [socket, data]) do
           {:stop, _, _} = val ->
