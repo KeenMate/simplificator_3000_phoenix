@@ -36,7 +36,7 @@ defmodule Simplificator3000Phoenix.Channel do
         )
       end
 
-      def unauthorized?(socket) do
+      def unauthorized(socket) do
         unquote(unauthorize_handler).(socket)
       end
 
@@ -95,7 +95,7 @@ defmodule Simplificator3000Phoenix.Channel do
           with payload <- Simplificator3000.MapHelpers.snake_cased_map_keys(payload),
                {:ok, parsed_payload} <- Tarams.cast(payload, unquote(payload_template)) do
             # Unwrap payload
-            [unquote_splicing([payload, socket])] = [payload, socket]
+            [unquote_splicing([payload, socket])] = [parsed_payload, socket]
 
             # Call user code
             unquote(block)
