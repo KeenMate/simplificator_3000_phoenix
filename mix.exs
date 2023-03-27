@@ -49,7 +49,7 @@ defmodule Simplificator3000Phoenix.MixProject do
   defp deps do
     [
       {:ex_doc, "~> 0.27", only: :dev, runtime: false},
-      {:plug, ">= 1.13.6", optional: true},
+      {:plug, ">= 1.13.0", optional: true},
       {:phoenix, ">= 1.6.10", optional: true},
       {:simplificator_3000, "~> 0.5.1"},
       {:tarams, "~> 1.0.0"}
