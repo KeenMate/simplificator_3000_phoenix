@@ -21,6 +21,7 @@ defmodule Simplificator3000Phoenix.Channel do
         socket = put_request_id(socket)
 
         event_atom = String.to_existing_atom(event)
+
         if function_exported?(__MODULE__, event_atom, 2) do
           apply(__MODULE__, event_atom, [payload, socket])
         else
@@ -90,9 +91,12 @@ defmodule Simplificator3000Phoenix.Channel do
 
     quote do
       def unquote(handler_name)(payload, socket) do
-        if Simplificator3000Phoenix.PermissionsCheck.check_permissions(socket, unquote(Macro.escape(opts))) do
+        if Simplificator3000Phoenix.PermissionsCheck.check_permissions(
+             socket,
+             unquote(Macro.escape(opts))
+           ) do
           # Parse and validate params
-          with payload <- Simplificator3000.MapHelpers.snake_cased_map_keys(payload),
+          with payload <- Simplificator3000Phoenix.Conn.parse_payload(payload),
                {:ok, parsed_payload} <- Tarams.cast(payload, unquote(payload_template)) do
             # Call user code
             apply(__MODULE__, unquote(event), [parsed_payload, socket])
@@ -109,24 +113,27 @@ defmodule Simplificator3000Phoenix.Channel do
     end
   end
 
-  defmacro message({event, _, params}, [do: block]) do
+  defmacro message({event, _, params}, do: block) do
     payload_template = Module.get_attribute(__CALLER__.module, :payload) || quote do: %{}
     Module.delete_attribute(__CALLER__.module, :payload)
 
     [payload, socket, opts] =
       case params do
-          [payload, socket, opts] ->
-              [payload, socket, opts]
+        [payload, socket, opts] ->
+          [payload, socket, opts]
 
-          [payload, socket] ->
-              [payload, socket, []]
+        [payload, socket] ->
+          [payload, socket, []]
       end
 
     quote do
       def unquote(event)(payload, socket) do
-        if Simplificator3000Phoenix.PermissionsCheck.check_permissions(socket, unquote(Macro.escape(opts))) do
+        if Simplificator3000Phoenix.PermissionsCheck.check_permissions(
+             socket,
+             unquote(Macro.escape(opts))
+           ) do
           # Parse and validate params
-          with payload <- Simplificator3000.MapHelpers.snake_cased_map_keys(payload),
+          with payload <- Simplificator3000Phoenix.Conn.parse_payload(payload),
                {:ok, parsed_payload} <- Tarams.cast(payload, unquote(payload_template)) do
             # Unwrap payload
             [unquote_splicing([payload, socket])] = [parsed_payload, socket]
