@@ -24,14 +24,16 @@ defmodule Simplificator3000Phoenix.ApiHandler do
             unquote(options)
           )
         ) do
-          with {:ok, better_params} <- Tarams.cast(params, unquote(params_template)) do
+          snake_cased_params = Simplificator3000Phoenix.Conn.parse_payload(params)
+
+          with {:ok, better_params} <- Tarams.cast(snake_cased_params, unquote(params_template)) do
             unquote(call_handler_method(handler_method_name, options))
           else
             {:error, errors} ->
               unquote(invalid_params_handler).(conn, errors)
           end
         else
-          unquote(unauthorized_handler).(conn)
+          unquote(unauthorized_handler).(conn, unquote(options))
         end
       end
     end
