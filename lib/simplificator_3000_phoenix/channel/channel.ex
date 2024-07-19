@@ -25,7 +25,7 @@ defmodule Simplificator3000Phoenix.Channel do
         if function_exported?(__MODULE__, event_atom, 2) do
           apply(__MODULE__, event_atom, [payload, socket])
         else
-          Logger.warn("No handler for event #{event} in #{__MODULE__}")
+          Logger.warning("No handler for event #{event} in #{__MODULE__}")
           {:noreply, socket}
         end
       end
