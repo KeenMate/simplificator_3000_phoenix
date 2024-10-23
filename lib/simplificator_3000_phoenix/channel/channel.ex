@@ -1,4 +1,5 @@
 defmodule Simplificator3000Phoenix.Channel do
+  alias Simplificator3000Phoenix.Internal.MacroHelpers
   alias Simplificator3000Phoenix.Channel.ChannelConfig, as: Config
   alias Simplificator3000.Result.{Ok, Error}
 
@@ -178,11 +179,17 @@ defmodule Simplificator3000Phoenix.Channel do
           [payload, socket, []]
       end
 
+    channel_pid_var =
+      # to get rid of the warning about unused `channel_pid`
+      if MacroHelpers.var_referenced?(block, :channel_pid) do
+        quote do: (var!(channel_pid) = self())
+      end
+
     quote do
       message unquote(event)(unquote_splicing(params)) do
         ref = socket_ref(unquote(socket))
         var!(ctx) = user_ctx(unquote(socket))
-        var!(channel_pid) = self()
+        unquote(channel_pid_var)
 
         Task.start_link(fn ->
           result = unquote(block)
