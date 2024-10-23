@@ -1,6 +1,8 @@
 defmodule Simplificator3000Phoenix.Channel do
-  require Logger
   alias Simplificator3000Phoenix.Channel.ChannelConfig, as: Config
+  alias Simplificator3000.Result.{Ok, Error}
+
+  require Logger
 
   defmacro __using__(options) do
     use_channel_module = Config.get_use_channel_module(options, __CALLER__.module)
@@ -84,7 +86,7 @@ defmodule Simplificator3000Phoenix.Channel do
       end
       ```
 
-      This way you can create event handler by yourself thus allowing you to make use of mupltiple function pattern matching.
+      This way you can create event handler by yourself thus allowing you to make use of multiple function pattern matching.
   """
   defmacro message(event, payload_template, opts) do
     handler_name = String.to_atom(Atom.to_string(event) <> "_handler")
@@ -117,6 +119,7 @@ defmodule Simplificator3000Phoenix.Channel do
     payload_template = Module.get_attribute(__CALLER__.module, :payload) || quote do: %{}
     Module.delete_attribute(__CALLER__.module, :payload)
 
+    # used in order to reference to the same name as the author chose (e.g. for "socket") (AST stuff)
     [payload, socket, opts] =
       case params do
         [payload, socket, opts] ->
@@ -153,7 +156,70 @@ defmodule Simplificator3000Phoenix.Channel do
     end
   end
 
-  defmacro sub(name, options \\ []) do
+  @doc """
+  A shorter version of full-fat `message` macro. The difference is that this helper manages to execute your code in separate process, prepares ctx
+  and then automatically sends response with metadata and request_id set up (no longer shall we forget to send this extra data)
+  """
+  defmacro msg({event, _, params}, do: block) do
+    # used in order to reference to the same name as the author chose for "socket" (AST stuff)
+    [_payload, socket, _opts] =
+      case params do
+        [payload, socket, opts] ->
+          [payload, socket, opts]
+
+        [payload, socket] ->
+          [payload, socket, []]
+      end
+
+    quote do
+      message unquote(event)(unquote_splicing(params)) do
+        ref = socket_ref(unquote(socket))
+        ctx = user_ctx(unquote(socket))
+
+        Task.start_link(fn ->
+          result = unquote(block)
+
+          case result do
+            %Ok{data: data, metadata: metadata} ->
+              success_reply(ref, map_response(data), metadata: metadata, request_id: ctx.request_id)
+
+            %Error{reason: reason, metadata: metadata} ->
+              error_reply(ref, reason: if(is_atom(reason), do: reason), metadata: metadata, request_id: ctx.request_id)
+          end
+        end)
+      end
+    end
+  end
+
+  @doc """
+  Creates a `handle_info` definition which simplifies the syntax required for this code.
+  From this:
+  ```
+  def handle_info({:event, param1, param2, ...}, socket) do
+    ...code
+    {:noreply, socket}
+  end
+  ```
+
+  To this:
+  ```
+  sub event(param1, param2, ..., socket) do
+    ...code
+    {:noreply, socket}
+  end
+  ```
+  """
+  defmacro sub(name, options \\ [])
+
+  defmacro sub({event, _, params}, do: block) do
+    quote do
+      def handle_info({unquote(event), unquote_splicing(params)}, socket) do
+        unquote(block)
+      end
+    end
+  end
+
+  defmacro sub(name, options) do
     handler_name = Keyword.get(options, :handler, name)
 
     quote do
