@@ -174,17 +174,17 @@ defmodule Simplificator3000Phoenix.Channel do
     quote do
       message unquote(event)(unquote_splicing(params)) do
         ref = socket_ref(unquote(socket))
-        ctx = user_ctx(unquote(socket))
+        var!(ctx) = user_ctx(unquote(socket))
 
         Task.start_link(fn ->
           result = unquote(block)
 
           case result do
             %Ok{data: data, metadata: metadata} ->
-              success_reply(ref, map_response(data), metadata: metadata, request_id: ctx.request_id)
+              success_reply(ref, map_response(data), metadata: metadata, request_id: var!(ctx).request_id)
 
             %Error{reason: reason, metadata: metadata} ->
-              error_reply(ref, reason: if(is_atom(reason), do: reason), metadata: metadata, request_id: ctx.request_id)
+              error_reply(ref, reason: if(is_atom(reason), do: reason), metadata: metadata, request_id: var!(ctx).request_id)
           end
         end)
 
