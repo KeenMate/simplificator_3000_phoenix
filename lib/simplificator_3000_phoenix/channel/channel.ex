@@ -157,8 +157,15 @@ defmodule Simplificator3000Phoenix.Channel do
   end
 
   @doc """
-  A shorter version of full-fat `message` macro. The difference is that this helper manages to execute your code in separate process, prepares ctx
-  and then automatically sends response with metadata and request_id set up (no longer shall we forget to send this extra data)
+  A shorter version of the full-fat `message` macro. The difference is that this helper manages to execute your code in a separate process, prepares ctx
+  and then automatically sends given response with the metadata and request_id set up.
+  Data and metadata are also mapped to the serializable versions (using `map_response`).
+
+  No longer shall we forget do these extra steps a-ha :).
+
+  ## Extra variables available
+    * `ctx` - just the result of `user_ctx(socket)` call (should contain `%UserContext{}` struct with information about current user)
+    * `channel_pid` - this is the PID of the channel (in case you want to send custom message to this channel)
   """
   defmacro msg({event, _, params}, do: block) do
     # used in order to reference to the same name as the author chose for "socket" (AST stuff)
@@ -175,16 +182,17 @@ defmodule Simplificator3000Phoenix.Channel do
       message unquote(event)(unquote_splicing(params)) do
         ref = socket_ref(unquote(socket))
         var!(ctx) = user_ctx(unquote(socket))
+        var!(channel_pid) = self()
 
         Task.start_link(fn ->
           result = unquote(block)
 
           case result do
             %Ok{data: data, metadata: metadata} ->
-              success_reply(ref, map_response(data), metadata: metadata, request_id: var!(ctx).request_id)
+              success_reply(ref, map_response(data), metadata: map_response(metadata), request_id: var!(ctx).request_id)
 
             %Error{reason: reason, metadata: metadata} ->
-              error_reply(ref, reason: if(is_atom(reason), do: reason), metadata: metadata, request_id: var!(ctx).request_id)
+              error_reply(ref, reason: if(is_atom(reason), do: reason), metadata: map_response(metadata), request_id: var!(ctx).request_id)
           end
         end)
 
