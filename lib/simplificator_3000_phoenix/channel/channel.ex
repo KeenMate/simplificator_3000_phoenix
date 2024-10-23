@@ -187,6 +187,8 @@ defmodule Simplificator3000Phoenix.Channel do
               error_reply(ref, reason: if(is_atom(reason), do: reason), metadata: metadata, request_id: ctx.request_id)
           end
         end)
+
+        no_reply()
       end
     end
   end
