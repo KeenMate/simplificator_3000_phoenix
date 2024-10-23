@@ -157,7 +157,7 @@ defmodule Simplificator3000Phoenix.Channel do
   end
 
   @doc """
-  A shorter version of the full-fat `message` macro. The difference is that this helper manages to execute your code in a separate process, prepares ctx
+  A more rich version of the "barebone" `message` macro. The difference is that this helper manages to execute your code in a separate linked `Task`, prepares ctx
   and then automatically sends given response with the metadata and request_id set up.
   Data and metadata are also mapped to the serializable versions (using `map_response`).
 
