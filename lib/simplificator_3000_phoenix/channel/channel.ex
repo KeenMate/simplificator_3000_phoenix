@@ -192,14 +192,36 @@ defmodule Simplificator3000Phoenix.Channel do
         unquote(channel_pid_var)
 
         Task.start_link(fn ->
-          result = unquote(block)
+          try do
+            result = unquote(block)
 
-          case result do
-            %Ok{data: data, metadata: metadata} ->
-              success_reply(ref, map_response(data), metadata: map_response(metadata), request_id: var!(ctx).request_id)
+            case result do
+              ## Oks
 
-            %Error{reason: reason, metadata: metadata} ->
-              error_reply(ref, reason: if(is_atom(reason), do: reason), metadata: map_response(metadata), request_id: var!(ctx).request_id)
+              {:ok, data} ->
+                success_reply(ref, map_response(data), request_id: var!(ctx).request_id)
+
+              {:ok, data, metadata} ->
+                success_reply(ref, map_response(data), metadata: map_response(metadata), request_id: var!(ctx).request_id)
+
+              %Ok{data: data, metadata: metadata} ->
+                success_reply(ref, map_response(data), metadata: map_response(metadata), request_id: var!(ctx).request_id)
+
+              ## Errors
+
+              {:error, reason} ->
+                error_reply(ref, reason: if(is_atom(reason), do: reason), request_id: var!(ctx).request_id)
+
+              {:error, reason, metadata} ->
+                error_reply(ref, reason: if(is_atom(reason), do: reason), metadata: map_response(metadata), request_id: var!(ctx).request_id)
+
+              %Error{reason: reason, metadata: metadata} ->
+                error_reply(ref, reason: if(is_atom(reason), do: reason), metadata: map_response(metadata), request_id: var!(ctx).request_id)
+            end
+          rescue error ->
+            Logger.error("Error occurred while processing message #{to_string event}", reason: inspect(error))
+
+            error_reply(ref, reason: :runtime_error, request_id: var!(ctx).request_id)
           end
         end)
 
