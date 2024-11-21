@@ -219,7 +219,7 @@ defmodule Simplificator3000Phoenix.Channel do
                 error_reply(ref, reason: if(is_atom(reason), do: reason), metadata: map_response(metadata), request_id: var!(ctx).request_id)
             end
           rescue error ->
-            Logger.error("Error occurred while processing message #{to_string event}", reason: inspect(error))
+            Logger.error("Error occurred while processing message #{to_string unquote(event)}", reason: inspect(error))
 
             error_reply(ref, reason: :runtime_error, request_id: var!(ctx).request_id)
           end
