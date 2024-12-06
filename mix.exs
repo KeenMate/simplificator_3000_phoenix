@@ -51,7 +51,7 @@ defmodule Simplificator3000Phoenix.MixProject do
       {:ex_doc, "~> 0.27", runtime: false},
       {:plug, ">= 1.13.0", optional: true},
       {:phoenix, ">= 1.6.10", optional: true},
-      {:simplificator_3000, "<= 1.0"},
+      {:simplificator_3000, "<= 1.0.0"},
       {:tarams, "~> 1.0.0"}
     ]
   end
