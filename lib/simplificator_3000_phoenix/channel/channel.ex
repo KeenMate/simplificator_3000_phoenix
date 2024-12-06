@@ -138,7 +138,7 @@ defmodule Simplificator3000Phoenix.Channel do
            ) do
           # Parse and validate params
           with payload <- Simplificator3000Phoenix.Conn.parse_payload(payload),
-               {cid, payload} <- maybe_extract_payload_cid(payload)
+               {cid, payload} <- maybe_extract_payload_cid(payload),
                {:ok, parsed_payload} <- Tarams.cast(payload, unquote(payload_template)) do
             # will either set it (not null) or remove (if null)
             Logger.metadata(cid: cid)
@@ -174,7 +174,7 @@ defmodule Simplificator3000Phoenix.Channel do
   """
   defmacro msg({event, _, params}, do: block) do
     # used in order to reference to the same name as the author chose for "socket" (AST stuff)
-    [_payload, socket, _opts] =
+    [payload, socket, opts] =
       case params do
         [payload, socket, opts] ->
           [payload, socket, opts]
@@ -190,10 +190,12 @@ defmodule Simplificator3000Phoenix.Channel do
       end
 
     quote do
-      message unquote(event)(unquote_splicing(params)) do
-        ref = socket_ref(unquote(socket))
-        var!(ctx) = user_ctx(unquote(socket))
+      message unquote(event)(var!(payload), var!(socket), unquote(opts)) do
+        ref = socket_ref(var!(socket))
+        var!(ctx) = user_ctx(var!(socket))
         unquote(channel_pid_var)
+
+        [unquote_splicing([payload, socket])] = [var!(payload), var!(socket)]
 
         Task.start_link(fn ->
           try do
@@ -232,6 +234,7 @@ defmodule Simplificator3000Phoenix.Channel do
         no_reply()
       end
     end
+    # |> tap(&IO.puts("message/3 output: \n\n#{Macro.to_string(&1)}"))
   end
 
   @doc """
@@ -255,7 +258,17 @@ defmodule Simplificator3000Phoenix.Channel do
   defmacro sub(name, options \\ [])
 
   defmacro sub({event, _, params}, do: block) do
+    # provide `@impl true` tag for to-be generated `handle_info/3` GenServer callback
+    impl_tag =
+      if not Module.get_attribute(__CALLER__.module, :simplificator_3000_phoenix_handle_info_impl_set, false) do
+        Module.put_attribute(__CALLER__.module, :simplificator_3000_phoenix_handle_info_impl_set, true)
+        quote do
+          @impl true
+        end
+      end
+
     quote do
+      unquote(impl_tag)
       def handle_info({unquote(event), unquote_splicing(params)}, socket) do
         unquote(block)
       end
@@ -272,10 +285,10 @@ defmodule Simplificator3000Phoenix.Channel do
             val
 
           {:noreply, socket} ->
-            {:noreply, socket}
+            no_reply()
 
           _ ->
-            {:noreply, socket}
+            no_reply()
         end
       end
     end

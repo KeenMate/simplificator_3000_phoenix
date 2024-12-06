@@ -5,6 +5,8 @@ defmodule Simplificator3000Phoenix.Channel.ChannelHelpers do
   import Phoenix.Channel, only: [reply: 2, push: 3]
   import Simplificator3000.MapHelpers, only: [camel_cased_map_keys: 1]
 
+  defguard is_ctx_related(ctx, socket) when ctx.user_id == socket.assigns.user.user_id
+
   def put_request_id(socket) do
     request_id = RandomHelpers.new_guid()
     #    Logger.debug("Generated new reqid for channel call: #{request_id}")
@@ -108,6 +110,33 @@ defmodule Simplificator3000Phoenix.Channel.ChannelHelpers do
       response
     )
   end
+
+  def user_id(socket) do
+    get_user_key(socket, :user_id)
+  end
+
+  def username(socket) do
+    get_user_key(socket, :username)
+  end
+
+  def get_user_key(socket, key) do
+    socket
+    |> user()
+    |> Map.get(key)
+  end
+
+  def get_user_ctx(socket) do
+    user_ctx(socket)
+  end
+
+  def get_identity(socket) do
+    user(socket)
+  end
+
+  def user(%{assigns: %{user: user}}), do: user
+
+  @spec user_ctx(Phoenix.Socket.t()) :: UserContext.t()
+  def user_ctx(%{assigns: %{ctx: ctx}}), do: ctx
 
   defp add_fallback_request_id(opts, socket) do
     opts ++ [request_id: request_id(socket)]

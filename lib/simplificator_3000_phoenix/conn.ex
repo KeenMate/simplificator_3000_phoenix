@@ -44,6 +44,10 @@ defmodule Simplificator3000Phoenix.Conn do
     Tuple.to_list(tuple)
   end
 
+  def map_response(%Decimal{} = dec) do
+    Decimal.to_float(dec)
+  end
+
   def map_response(%DateTime{} = val), do: val
 
   def map_response(%Time{} = val), do: val
@@ -69,6 +73,8 @@ defmodule Simplificator3000Phoenix.Conn do
   def parse_payload(list) when is_list(list) do
     Enum.map(list, &parse_payload/1)
   end
+
+  def parse_payload(%Decimal{} = dec), do: dec
 
   def parse_payload(%{} = struct) when is_struct(struct) do
     struct
