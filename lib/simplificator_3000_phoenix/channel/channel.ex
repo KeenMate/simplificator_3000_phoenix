@@ -15,6 +15,7 @@ defmodule Simplificator3000Phoenix.Channel do
       require Logger
 
       import Simplificator3000Phoenix.Channel.ChannelHelpers
+      import Simplificator3000Phoenix.Conn
       import unquote(__MODULE__)
 
       Module.register_attribute(__MODULE__, :payload, [])

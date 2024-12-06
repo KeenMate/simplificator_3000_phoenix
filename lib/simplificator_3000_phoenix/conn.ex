@@ -3,6 +3,12 @@ defmodule Simplificator3000Phoenix.Conn do
   import Phoenix.Controller, only: [json: 2]
   import Simplificator3000.MapHelpers, only: [camel_cased_map_keys: 1, snake_cased_map_keys: 1]
 
+  defmacro internal_server_error() do
+    quote do
+      error_response(var!(conn), msg: "Internal server error")
+    end
+  end
+
   def success(data \\ nil, metadata \\ nil) do
     %{data: data, metadata: metadata}
   end
