@@ -139,10 +139,8 @@ defmodule Simplificator3000Phoenix.Channel do
            ) do
           # Parse and validate params
           with payload <- Simplificator3000Phoenix.Conn.parse_payload(payload),
-               {cid, payload} <- maybe_extract_payload_cid(payload),
                {:ok, parsed_payload} <- Tarams.cast(payload, unquote(payload_template)) do
-            # will either set it (not null) or remove (if null)
-            Logger.metadata(cid: cid)
+
 
             # Unwrap payload
             [unquote_splicing([payload, socket])] = [parsed_payload, socket]
@@ -299,16 +297,5 @@ defmodule Simplificator3000Phoenix.Channel do
     quote do
       {:noreply, var!(socket)}
     end
-  end
-
-  @spec maybe_extract_payload_cid(map() | list()) :: {binary() | nil, map() | list()}
-  def maybe_extract_payload_cid(%{} = payload) do
-    {with_cid, rest_payload} = Map.split(payload, ["cid"])
-
-    {with_cid["cid"], rest_payload}
-  end
-
-  def maybe_extract_payload_cid(payload) when is_list(payload) do
-    {nil, payload}
   end
 end
