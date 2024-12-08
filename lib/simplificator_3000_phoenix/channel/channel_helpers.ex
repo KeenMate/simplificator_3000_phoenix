@@ -7,9 +7,8 @@ defmodule Simplificator3000Phoenix.Channel.ChannelHelpers do
 
   defguard is_ctx_related(ctx, socket) when ctx.user_id == socket.assigns.user.user_id
 
-  def put_request_id(socket, payload) do
-    input_request_id = get_payload_request_id(payload)
-    request_id = input_request_id || RandomHelpers.new_guid()
+  def put_request_id(socket) do
+    request_id = RandomHelpers.new_guid()
 
     #    Logger.debug("Generated new reqid for channel call: #{request_id}")
     socket
@@ -146,13 +145,5 @@ defmodule Simplificator3000Phoenix.Channel.ChannelHelpers do
 
   defp add_status(response, status) do
     Map.put(response, :status, status)
-  end
-
-  defp get_payload_request_id(%{} = payload) do
-    Map.get(payload, "request_id")
-  end
-
-  defp get_payload_request_id(payload) when is_list(payload) do
-    nil
   end
 end
