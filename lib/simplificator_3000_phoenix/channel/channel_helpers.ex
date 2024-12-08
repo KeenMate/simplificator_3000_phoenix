@@ -11,6 +11,8 @@ defmodule Simplificator3000Phoenix.Channel.ChannelHelpers do
     request_id = RandomHelpers.new_guid()
 
     #    Logger.debug("Generated new reqid for channel call: #{request_id}")
+    Logger.metadata(request_id: request_id)
+
     socket
     |> assign(:request_id, request_id)
     |> case do
